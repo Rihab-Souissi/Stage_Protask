@@ -1,0 +1,58 @@
+<div class="sidebar" [class.collapsed]="isCollapsed">
+  <div class="logo-container">
+  <i class="fas fa-video text-white"></i>
+
+    <button class="collapse-btn" (click)="toggle()">
+      <i class="fas" [ngClass]="{'fa-chevron-left': !isCollapsed, 'fa-chevron-right': isCollapsed}"></i>
+    </button>
+  </div>
+
+  <nav class="nav-menu">
+    <!-- Visible pour tous -->
+<a *ngIf="isAdmin" [routerLink]="['/Dashboard']" [class.active]="isActive('/board')" class="nav-item">
+  <i class="fas fa-columns"></i>
+  <span>TaskBoard</span>
+</a>
+
+
+<a *ngIf="isAdmin" [routerLink]="['/static']" [class.active]="isActive('/static')" class="nav-item">
+  <i class="fas fa-chart-pie"></i> <!-- icône représentant le dashboard/statistiques -->
+  <span>Dashboard</span>
+</a>
+
+    <a *ngIf="isEmployee" [routerLink]="['/board']" [class.active]="isActive('/board')" class="nav-item">
+      <i class="fas fa-columns"></i>
+  <span>TaskBoard</span>
+</a>
+    <!-- Créer projet : seulement MANAGER -->
+          <a *ngIf="isManager" [routerLink]="['/Dashboard']" [class.active]="isActive('/board')" class="nav-item">
+      <i class="fas fa-columns"></i>
+  <span>TaskBoard</span>
+</a>
+     <!-- Créer ticket : seulement MANAGER -->
+<a *ngIf="isManager" [routerLink]="['/add-employee']" [class.active]="isActive('/add-employee')" class="nav-item">
+  <i class="fas fa-user-plus"></i> <!-- icône pour ajouter un employé -->
+  <span>Add Employee</span>
+</a>
+
+<!-- Créer projet : seulement MANAGER -->
+<a *ngIf="isManager" [routerLink]="['/create-project']" [class.active]="isActive('/create-project')" class="nav-item">
+  <i class="fas fa-folder-plus"></i> <!-- icône pour créer un projet -->
+  <span>Create Project</span>
+</a>
+<a *ngIf="isManager" [routerLink]="['/tickets']" [class.active]="isActive('/tickets')" class="nav-item">
+  <i class="fas fa-tasks"></i> <!-- icône pour gérer les tickets / tâches -->
+  <span>Assign Tickets</span>
+</a>
+
+
+
+  </nav>
+
+  <div class="logout-container">
+    <button (click)="logout()" class="logout-btn">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Log out</span>
+    </button>
+  </div>
+</div>

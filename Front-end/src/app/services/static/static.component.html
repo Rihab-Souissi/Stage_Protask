@@ -1,0 +1,83 @@
+<!-- Main Container -->
+<div class="main-dashboard-layout">
+
+  <!-- Top Summary Cards Section -->
+  <div class="summary-cards">
+    <div class="card">
+      <h3>Total Projects</h3>
+      <p class="stat-number">{{ totalProjectCount }}</p>
+    </div>
+
+    <div class="card">
+      <h3>Total Tickets</h3>
+      <p class="stat-number">{{ totalCount }}</p>
+    </div>
+  </div>
+
+  <!-- Lower Content Section: Filter + Table + Donut Chart -->
+  <div class="content-lower">
+
+    <!-- Left Section: Filter + Project Table -->
+    <div class="project-stats-container">
+      <div class="project-filter">
+        <select [(ngModel)]="selectedProject" (change)="onProjectChange()" [ngModelOptions]="{ standalone: true }">
+          <option [ngValue]="null" disabled selected>-- Select a Project --</option>
+          <option *ngFor="let project of projects" [ngValue]="project">{{ project.name }}</option>
+        </select>
+        <button (click)="loadStatistics()">Filter</button>
+      </div>
+
+      <!-- Table of Selected Project Statistics -->
+      <div class="status-table" *ngIf="projectStats.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Count</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let stat of projectStats">
+              <td>
+                <span class="status-tag" [style.background]="colors[stat.status]">
+                  {{ labels[stat.status] }}
+                </span>
+              </td>
+              <td>{{ stat.count }}</td>
+              <td>{{ stat.percentage }}%</td>
+            </tr>
+          
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Section: General Donut Chart -->
+    <div class="chart-container">
+      <div class="chart-header">
+        <h2 class="chart-title"> Progress of All Projects</h2>
+      </div>
+
+      <!-- Chart Content -->
+      <div class="chart-content" *ngIf="!isLoading && !hasError">
+        <div class="chart-wrapper">
+          <svg class="donut-chart" viewBox="0 0 200 200">
+            <!-- Segments dynamically added via Angular -->
+          </svg>
+          <div class="center-content">
+            <div class="total-label">Status</div>
+          </div>
+        </div>
+
+        <div id="legend" class="legend">
+          <div class="legend-item" *ngFor="let item of statusData">
+            <span class="color-dot" [style.background]="item.color"></span>
+            <span class="status-name">{{ item.label }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<header class="app-header">
+  <div class="header-container">
+    <div class="logo-container">
+      <a routerLink="/">
+        <img src="assets/logo.png" alt="Logo" class="header-logo">
+   
+      </a>
+    </div>
+
+    <nav class="main-nav">
+     
+    </nav>
+
+    <div class="user-section">
+      <div class="search-bar">
+        <input type="text" placeholder="Search...">
+        <button class="search-button">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+
+      <div class="notifications">
+        <a routerLink="/notifications" class="notification-icon">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge" *ngIf="unreadNotificationCount > 0">{{ unreadNotificationCount }}</span>
+        </a>
+      </div>
+
+      <div class="user-profile" (clickOutside)="closeDropdown()">
+        <div class="profile-dropdown" (click)="toggleDropdown($event)">
+          <div class="profile-image">
+            <img src="assets/images/profile-placeholder.jpg" alt="User Profile"
+              (error)="handleImageError($event)" />
+          </div>
+          <span class="dropdown-arrow" [class.open]="isDropdownOpen">
+            <i class="fas fa-chevron-down"></i>
+          </span>
+          <div class="dropdown-menu" [class.open]="isDropdownOpen">
+            <div class="dropdown-header">
+              <div class="profile-info">
+                <div class="user-name">{{name}}</div>
+                <div class="user-email">{{username}}</div>
+              </div>
+            </div>
+            <ul>
+             <!--<li><a routerLink="/network/researcher/1"><i class="fas fa-user"></i> My Profile</a></li>-->
+             <li><a (click)="profile()"><i class="fas fa-user"></i> My Profile</a></li>
+              <li><a routerLink="/network/messages"><i class="fas fa-envelope"></i> Messages</a></li>
+            
+        
+              <li class="divider"></li>
+          
+              <li><a (click)="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

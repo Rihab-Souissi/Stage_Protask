@@ -1,0 +1,8 @@
+<div class="ticket-content" style="padding: 20px;">
+  <h4 class="ticket-title">{{ ticket.title || '(No title)' }}</h4>
+  <p><strong>Description:</strong> {{ ticket.description || '(No description)' }}</p>
+  <p><strong>Status:</strong> {{ ticket.status }}</p>
+  <p><strong>Assigned to:</strong> {{ ticket.assignedEmployeeUsername || 'None' }}</p>
+  <p><strong>Created on:</strong> {{ ticket.createdAt | date:'short' }}</p>
+  <p><strong>Updated on:</strong> {{ ticket.updatedAt | date:'short' }}</p>
+</div>

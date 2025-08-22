@@ -1,0 +1,116 @@
+<div class="log-time-dialog">
+  <!-- Header with ticket information -->
+  <div class="dialog-header">
+    <h2>🕒 Log Time</h2>
+    <button class="close-btn" (click)="cancel()" aria-label="Close">✕</button>
+  </div>
+
+  <!-- Ticket information -->
+  <div class="ticket-info">
+    <div class="info-row">
+      <span class="info-icon">📋</span>
+      <strong>Ticket:</strong> 
+      <span class="ticket-name">{{ data.ticket.title || 'No title' }}</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-icon">👤</span>
+      <strong>User:</strong> 
+      <span class="user-name">{{ data.ticket.assignedEmployeeUsername || 'Unassigned' }}</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-icon">⏱️</span>
+      <strong>Estimated time:</strong> 
+      <span class="estimated-time">{{ data.ticket.estimatedTime || '0' }}h</span>
+    </div>
+    
+    <!-- New sessions row -->
+    <div class="info-row" *ngIf="timeLogs.length > 0">
+      <span class="info-icon">➕</span>
+      <strong>New sessions:</strong> 
+      <span class="new-sessions-time">{{ newSessionsTime.toFixed(1) }}h</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-icon">📊</span>
+      <strong>Worked time:</strong> 
+      <span class="total-time" [class.exceeded]="isTimeExceeded">
+        {{ totalLoggedTime.toFixed(1) }}h
+      </span>
+      <span class="remaining-time" *ngIf="!isTimeExceeded">
+        ({{ remainingTime.toFixed(1) }}h remaining)
+      </span>
+      <span class="exceeded-time" *ngIf="isTimeExceeded">
+        (exceeded by {{ (totalLoggedTime - parseFloat(data.ticket.estimatedTime || '0')).toFixed(1) }}h)
+      </span>
+    </div>
+  </div>
+
+  <!-- Time exceeded alert -->
+  <div class="time-exceeded-alert" *ngIf="isTimeExceeded">
+    ⚠️ <strong>Warning:</strong> Estimated time exceeded by {{ (totalLoggedTime - parseFloat(data.ticket.estimatedTime || '0')).toFixed(1) }}h
+  </div>
+
+  <!-- Form to add time -->
+  <div class="add-time-section">
+    <h3>➕ Add a work session</h3>
+    
+    <form [formGroup]="form" (ngSubmit)="addTimeLog()" class="time-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="date">📅 Date:</label>
+          <input id="date" type="date" formControlName="date" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="duration">⏰ Duration (hours):</label>
+          <input id="duration" type="number" formControlName="duration" 
+                 min="0.1" step="0.1" placeholder="Ex: 2.5" required>
+        </div>
+      </div>
+      
+      <button type="submit" class="btn btn-add" [disabled]="!form.valid">
+        ➕ Add this session
+      </button>
+    </form>
+  </div>
+
+  <!-- Logged work sessions -->
+  <div class="time-logs-section" *ngIf="timeLogs.length > 0">
+    <h3>📝 Logged work sessions</h3>
+    
+    <div class="time-logs-list">
+      <div class="time-log-item" *ngFor="let log of timeLogs; let i = index">
+        <div class="log-info">
+          <div class="log-date">
+            <span class="date-icon">📅</span>
+            {{ formatDate(log.date) }}
+          </div>
+          <div class="log-duration">
+            <span class="duration-icon">⏰</span>
+            {{ log.duration }}h
+          </div>
+          <div class="log-description" *ngIf="log.description">
+            <span class="desc-icon">📝</span>
+            {{ log.description }}
+          </div>
+        </div>
+        <button class="btn btn-remove" (click)="removeTimeLog(i)" aria-label="Remove this session">
+          🗑️
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Final actions -->
+  <div class="dialog-actions">
+    <button class="btn btn-secondary" (click)="cancel()">
+      ❌ Cancel
+    </button>
+    <button class="btn btn-primary" (click)="saveAllTimeLogs()" 
+            [disabled]="timeLogs.length === 0">
+      ✅ Save all ({{ timeLogs.length }} session{{ timeLogs.length > 1 ? 's' : '' }})
+    </button>
+  </div>
+</div>

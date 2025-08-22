@@ -1,0 +1,181 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <div class="header-left">
+      <div class="project-info">
+        <div class="breadcrumb">Projects</div>
+        <select [(ngModel)]="selectedProject" (change)="onProjectChange()">
+          <option *ngFor="let project of projects" [ngValue]="project">{{ project.name }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="refreshTickets()" [disabled]="isLoading">
+        <span class="refresh-icon">🔄</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="error-container" *ngIf="error">
+    <div class="error-message">
+      <span class="error-icon">⚠️</span>
+      {{ error }}
+    </div>
+    <button class="retry-btn" (click)="refreshTickets()">Retry</button>
+  </div>
+
+  <div class="kanban-board" *ngIf="!isLoading && !error" cdkDropListGroup>
+    <div *ngFor="let column of statusColumns"
+         class="kanban-column"
+         cdkDropList
+         [id]="column.key"
+         [cdkDropListData]="column.tickets"
+         (cdkDropListDropped)="onDrop($event, column.key)">
+
+      <div class="column-header">
+        <div class="column-title">
+          <h3>{{ column.label }}</h3>
+          <span class="ticket-count">{{ column.tickets.length }}</span>
+          <span class="checkmark" *ngIf="column.key === 'DONE'">✓</span>
+        </div>
+      </div>
+
+      <!-- Tickets -->
+      <div class="tickets-container">
+        <article *ngFor="let ticket of column.tickets"
+                 class="ticket-card"
+                 cdkDrag
+                 [cdkDragData]="ticket"
+                 (click)="openTicketPopup(ticket)"
+                 role="listitem"
+                 tabindex="0"
+                 (keydown.enter)="openTicketPopup(ticket)"
+                 (keydown.space)="openTicketPopup(ticket)">
+
+          <div class="ticket-content">
+            <!-- Tags -->
+            <div class="ticket-tags" *ngIf="ticket.tags?.length">
+              <span *ngFor="let tag of ticket.tags" class="tag">{{ tag }}</span>
+            </div>
+
+            <!-- Title -->
+            <h4 class="ticket-title">{{ ticket.title || '(No title)' }}</h4>
+
+            <!-- Description -->
+            <p class="ticket-description" *ngIf="ticket.description">{{ ticket.description }}</p>
+
+            <!-- Footer : code + assignee -->
+            <div class="ticket-footer">
+              <div class="ticket-code" *ngIf="ticket.code">
+                <span class="code-icon">📌</span>
+                {{ ticket.code }}
+              </div>
+              <div class="assignee" *ngIf="ticket.assignedEmployeeUsername">
+                <span class="assignee-avatar" [attr.aria-label]="'Assigned to ' + ticket.assignedEmployeeUsername">👤 {{ ticket.assignedEmployeeUsername }}</span>
+              </div>
+            </div>
+
+            <!-- Comment Button -->
+            <div class="comment-container">
+              <button class="comment" (click)="openCommentPopup(ticket); $event.stopPropagation()">💬 Comment</button>
+            </div>
+          </div>
+
+          <!-- Drag preview -->
+          <div class="ticket-card drag-preview" *cdkDragPreview>
+            <h4>{{ ticket.title || '(No title)' }}</h4>
+            <p>{{ ticket.description }}</p>
+          </div>
+
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticket Details Popup -->
+  <div class="popup-overlay" *ngIf="showTicketPopup" (click)="closeTicketPopup()">
+    <div class="popup-container ticket-popup" (click)="$event.stopPropagation()">
+      <div class="popup-header">
+        <h3>📋 Ticket Details</h3>
+        <button class="close-btn" (click)="closeTicketPopup()">×</button>
+      </div>
+
+      <div class="popup-content" *ngIf="selectedTicket">
+        <div class="ticket-details">
+          <div class="detail-row">
+            <strong>Title:</strong> 
+            <span>{{ selectedTicket.title || '(No title)' }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <strong>Description:</strong>
+            <span>{{ selectedTicket.description || 'No description' }}</span>
+          </div>
+          
+         <div class="detail-row">
+  <strong>⏳ Estimated Time:</strong>
+  <span>{{ selectedTicket.estimatedTime ? selectedTicket.estimatedTime + ' hours' : 'Not set' }}</span>
+</div>
+
+          <div class="detail-row" *ngIf="selectedTicket.assignedEmployeeUsername">
+            <strong>👤 Assigned to:</strong>
+            <span>{{ selectedTicket.assignedEmployeeUsername }}</span>
+          </div>
+
+          <div class="detail-row" *ngIf="selectedTicket.tags?.length">
+            <strong>🏷️ Tags:</strong>
+            <div class="tags-container">
+              <span *ngFor="let tag of selectedTicket.tags" class="tag">{{ tag }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="popup-actions">
+          <button class="btn-primary" (click)="openCommentPopupFromDetails()">💬 Comment on this ticket</button>
+          <button class="btn-secondary" (click)="closeTicketPopup()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comments Popup -->
+  <div class="popup-overlay" *ngIf="showCommentPopup" (click)="closeCommentPopup()">
+    <div class="popup-container comment-popup" (click)="$event.stopPropagation()">
+      <div class="popup-header">
+        <h3>💬 Comments</h3>
+        <button class="close-btn" (click)="closeCommentPopup()">×</button>
+      </div>
+
+      <div class="popup-content">
+        <!-- Comments List -->
+        <div class="comments-list" *ngIf="selectedTicket && commentsByTicket[selectedTicket.id] && commentsByTicket[selectedTicket.id].length > 0; else noComments">
+          <div *ngFor="let comment of commentsByTicket[selectedTicket.id]" class="comment-item">
+            <div class="comment-header">
+              <strong>{{ comment.senderUsername }}</strong>
+              <em>{{ comment.createdAt | date:'short' }}</em>
+            </div>
+            <div class="comment-text">{{ comment.content }}</div>
+          </div>
+        </div>
+        
+        <ng-template #noComments>
+          <div class="no-comments">
+            No comments for this ticket.
+          </div>
+        </ng-template>
+
+        <!-- Comment Form -->
+        <div class="comment-form">
+          <textarea [(ngModel)]="newCommentText" 
+                    placeholder="Write a comment..."
+                    rows="3"></textarea>
+          <div class="form-actions">
+            <button class="btn-primary" 
+                    (click)="addComment(selectedTicket.id, newCommentText)" 
+                    [disabled]="!newCommentText?.trim() || !selectedTicket">Send</button>
+            <button class="btn-secondary" (click)="closeCommentPopup()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

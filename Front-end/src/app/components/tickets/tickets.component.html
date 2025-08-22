@@ -1,0 +1,213 @@
+<!-- create-ticket.component.html -->
+<div class="container">
+  <div class="header">
+    <div class="avatar-container">
+      <svg class="avatar-icon" viewBox="0 0 24 24">
+        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z M15,13H16.5V18H15V13Z M9.5,13H11V18H9.5V13Z M7.5,13H9V18H7.5V13Z"/>
+      </svg>
+</div>
+<h2 class="title">Assign Ticket</h2>
+<p class="subtitle">Assign a ticket to an employee</p>
+</div>
+
+
+  <form [formGroup]="ticketForm" (ngSubmit)="submit()" class="ticket-form">
+    
+    <!-- Project -->
+    <div class="form-group" 
+         [class.valid]="ticketForm.get('projectId')?.valid && ticketForm.get('projectId')?.touched" 
+         [class.error]="ticketForm.get('projectId')?.invalid && ticketForm.get('projectId')?.touched">
+      <label for="projectId">Project Name</label>
+      <div class="select-wrapper">
+        <select id="projectId" formControlName="projectId">
+          <option value="" disabled>Select a project</option>
+          <option *ngFor="let project of projects" [value]="project.id">{{ project.name }}</option>
+        </select>
+        <svg class="select-icon" viewBox="0 0 24 24">
+          <path d="M7,10L12,15L17,10H7Z"/>
+        </svg>
+      </div>
+      <div class="error-message" *ngIf="ticketForm.get('projectId')?.invalid && ticketForm.get('projectId')?.touched">
+        <span *ngIf="ticketForm.get('projectId')?.errors?.['required']">Project selection is required</span>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <div class="form-group" 
+         [class.valid]="ticketForm.get('title')?.valid && ticketForm.get('title')?.touched" 
+         [class.error]="ticketForm.get('title')?.invalid && ticketForm.get('title')?.touched">
+      <label for="title">Ticket Title</label>
+      <div class="input-wrapper">
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          placeholder="Ex: User login error"
+        />
+        <svg class="input-icon" viewBox="0 0 24 24">
+          <path d="M3,17V19H9V17H3M3,5V7H13V5H3M13,21V19H21V17H13V15H11V21H13M7,9V11H3V13H7V11H21V9H7Z"/>
+        </svg>
+      </div>
+      <div class="error-message" *ngIf="ticketForm.get('title')?.invalid && ticketForm.get('title')?.touched">
+        <span *ngIf="ticketForm.get('title')?.errors?.['required']">Title is required</span>
+        <span *ngIf="ticketForm.get('title')?.errors?.['minlength']">Title must be at least 5 characters</span>
+      </div>
+    </div>
+
+    <!-- Row for Status and Assigned -->
+    <div class="form-row">
+      <!-- Status -->
+      <div class="form-group half-width" 
+           [class.valid]="ticketForm.get('status')?.valid && ticketForm.get('status')?.touched" 
+           [class.error]="ticketForm.get('status')?.invalid && ticketForm.get('status')?.touched">
+        <label for="status">Status</label>
+        <div class="select-wrapper">
+          <select id="status" formControlName="status">
+            <option value="" disabled>Select status</option>
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+          <svg class="select-icon" viewBox="0 0 24 24">
+            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17Z"/>
+          </svg>
+        </div>
+        <div class="error-message" *ngIf="ticketForm.get('status')?.invalid && ticketForm.get('status')?.touched">
+          <span *ngIf="ticketForm.get('status')?.errors?.['required']">Status is required</span>
+        </div>
+      </div>
+
+      <!-- Assigned Person -->
+      <div class="form-group half-width" 
+           [class.valid]="ticketForm.get('reporter')?.valid && ticketForm.get('reporter')?.touched" 
+           [class.error]="ticketForm.get('reporter')?.invalid && ticketForm.get('reporter')?.touched">
+        <label for="reporter">Assigned to</label>
+        <div class="select-wrapper">
+          <select id="reporter" formControlName="reporter">
+            <option value="" disabled>Assign to</option>
+            <option *ngFor="let emp of employees" [value]="emp">{{ emp }}</option>
+          </select>
+          <svg class="select-icon" viewBox="0 0 24 24">
+            <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+          </svg>
+        </div>
+        <div class="error-message" *ngIf="ticketForm.get('reporter')?.invalid && ticketForm.get('reporter')?.touched">
+          <span *ngIf="ticketForm.get('reporter')?.errors?.['required']">Assignment is required</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estimated Time -->
+    <div class="form-group" 
+         [class.valid]="ticketForm.get('estimatedTime')?.valid && ticketForm.get('estimatedTime')?.touched" 
+         [class.error]="ticketForm.get('estimatedTime')?.invalid && ticketForm.get('estimatedTime')?.touched">
+      <label for="estimatedTime">Estimated Time</label>
+      <div class="input-wrapper time-input">
+        <input
+          id="estimatedTime"
+          type="number"
+          formControlName="estimatedTime"
+          min="1"
+          max="999"
+          placeholder="Ex: 8"
+        />
+        <span class="input-suffix">hours</span>
+        <svg class="input-icon" viewBox="0 0 24 24">
+          <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+        </svg>
+      </div>
+      <div class="error-message" *ngIf="ticketForm.get('estimatedTime')?.invalid && ticketForm.get('estimatedTime')?.touched">
+        <span *ngIf="ticketForm.get('estimatedTime')?.errors?.['required']">Estimated time is required</span>
+        <span *ngIf="ticketForm.get('estimatedTime')?.errors?.['min']">Time must be at least 1 hour</span>
+        <span *ngIf="ticketForm.get('estimatedTime')?.errors?.['max']">Time cannot exceed 999 hours</span>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="form-group" 
+         [class.valid]="ticketForm.get('description')?.valid && ticketForm.get('description')?.touched" 
+         [class.error]="ticketForm.get('description')?.invalid && ticketForm.get('description')?.touched">
+      <label for="description">Detailed Description</label>
+      <div class="textarea-wrapper">
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="5"
+          placeholder="Describe the issue or request in detail. Include steps to reproduce the issue if applicable..."
+        ></textarea>
+        <svg class="textarea-icon" viewBox="0 0 24 24">
+          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+        </svg>
+        <div class="character-count">
+          {{ ticketForm.get('description')?.value?.length || 0 }}/1000
+        </div>
+      </div>
+      <div class="error-message" *ngIf="ticketForm.get('description')?.invalid && ticketForm.get('description')?.touched">
+        <span *ngIf="ticketForm.get('description')?.errors?.['required']">Description is required</span>
+        <span *ngIf="ticketForm.get('description')?.errors?.['minlength']">Description must be at least 20 characters</span>
+        <span *ngIf="ticketForm.get('description')?.errors?.['maxlength']">Description cannot exceed 1000 characters</span>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <button 
+      type="submit" 
+      class="btn" 
+      [disabled]="ticketForm.invalid || isLoading"
+      [class.loading]="isLoading"
+    >
+      <span *ngIf="!isLoading">
+        <svg class="btn-icon" viewBox="0 0 24 24">
+          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z M15,13H16.5V18H15V13Z M9.5,13H11V18H9.5V13Z"/>
+        </svg>
+      Asign Ticket
+      </span>
+      <span *ngIf="isLoading">
+        <svg class="spinner" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="32" stroke-dashoffset="32">
+            <animate attributeName="stroke-dashoffset" dur="1s" values="32;0" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+        Creating...
+      </span>
+    </button>
+
+    <div class="form-footer">
+      <p class="help-text">
+        <svg class="info-icon" viewBox="0 0 24 24">
+          <path d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+        </svg>
+        Relevant people will be automatically notified
+      </p>
+    </div>
+  </form>
+
+  <!-- Success/Error Messages -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    <svg class="alert-icon" viewBox="0 0 24 24">
+      <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+    </svg>
+    <div>
+      <strong>Ticket created successfully!</strong>
+      <p>{{ successMessage }}</p>
+    </div>
+    <button class="alert-close" (click)="dismissMessage()">
+      <svg viewBox="0 0 24 24">
+        <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12Z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <svg class="alert-icon" viewBox="0 0 24 24">
+      <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+    </svg>
+    <div>
+      <strong>Error while creating</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
+    <button class="alert-close" (click)="dismissMessage()">
+      <svg viewBox="0 0 24 24">
+        <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12Z"/>
+      </svg>
+    </button>
+  </div>
+</div>
